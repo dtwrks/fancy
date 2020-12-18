@@ -1,0 +1,15 @@
+{
+  "name": "fancy",
+  "version": "0.0.1",
+  "description": "A set of utilities to create elm-based SPA's with reduced boilerplate.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dtwrks/fancy.git"
+  },
+  "author": "Georges Boris",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dtwrks/fancy/issues"
+  },
+  "homepage": "https://github.com/dtwrks/fancy#readme"
+}
