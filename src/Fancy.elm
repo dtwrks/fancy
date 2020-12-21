@@ -1,7 +1,6 @@
 module Fancy exposing
     ( App
     , Page
-    , Widget
     , initPage
     , onUrlRequest
     , subNothing
@@ -15,7 +14,7 @@ module Fancy exposing
 import Browser exposing (UrlRequest(..))
 import Browser.Navigation as Nav
 import Html exposing (Html, text)
-import Url exposing (Url)
+import Url
 
 
 
@@ -107,80 +106,6 @@ viewPage { config, page, session, msgTagger } =
             |> Html.map msgTagger
             |> List.singleton
     }
-
-
-
--- Widget - In Progress
--- Haven't figured out a way to remove boilerplate from widgets in a useful way
--- They should be able to be used directly on routers and not just on pages (layout widgets)
-
-
-type alias Widget flags shared model msg =
-    { init : flags -> shared -> ( model, shared, Cmd msg )
-    , update : msg -> model -> shared -> ( model, shared, Cmd msg )
-    , subscriptions : model -> shared -> Sub msg
-    , view : model -> shared -> Html msg
-    }
-
-
-liftToPage :
-    (msg -> pageMsg)
-    -> (model -> pageModel)
-    -> ( model, shared, Cmd msg )
-    -> ( pageModel, shared, Cmd pageMsg )
-liftToPage msgTagger modelTagger ( model, shared, msg ) =
-    ( modelTagger model, shared, Cmd.map msgTagger msg )
-
-
-initWidget :
-    { config : Widget flags shared model msg
-    , flags : flags
-    , shared : shared
-    , msgTagger : msg -> pageMsg
-    , modelTagger : model -> pageModel
-    }
-    -> ( pageModel, shared, Cmd pageMsg )
-initWidget { config, flags, shared, msgTagger, modelTagger } =
-    config.init flags shared
-        |> liftToPage msgTagger modelTagger
-
-
-updateWidget :
-    { config : Page flags shared model msg
-    , msg : msg
-    , shared : shared
-    , widget : model
-    , msgTagger : msg -> pageMsg
-    , modelTagger : model -> pageModel
-    }
-    -> ( pageModel, shared, Cmd pageMsg )
-updateWidget { config, msg, shared, widget, msgTagger, modelTagger } =
-    config.update msg widget shared
-        |> liftToPage msgTagger modelTagger
-
-
-subscribeWidget :
-    { config : Page flags session model msg
-    , widget : model
-    , session : session
-    , msgTagger : msg -> pageMsg
-    }
-    -> Sub pageMsg
-subscribeWidget { config, widget, session, msgTagger } =
-    config.subscriptions widget session
-        |> Sub.map msgTagger
-
-
-viewWidget :
-    { config : Widget flags shared model msg
-    , widget : model
-    , shared : shared
-    , msgTagger : msg -> pageMsg
-    }
-    -> Html pageMsg
-viewWidget { config, widget, shared, msgTagger } =
-    config.view widget shared
-        |> Html.map msgTagger
 
 
 

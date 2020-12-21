@@ -14,12 +14,12 @@ type alias Flags =
 
 
 type alias Model =
-    { value : String }
+    String
 
 
 init : Flags -> Shared -> ( Model, Shared, Cmd Msg )
-init flags session =
-    ( { value = "GameMenu" }, session, Cmd.none )
+init _ session =
+    ( "GameMenu", session, Cmd.none )
 
 
 
@@ -31,19 +31,19 @@ type Msg
 
 
 title : Model -> Shared -> String
-title model shared =
-    model.value
+title model _ =
+    model
 
 
 update : Msg -> Model -> Shared -> ( Model, Shared, Cmd Msg )
-update msg model shared =
+update msg _ shared =
     case msg of
         UpdateValue value ->
-            ( { model | value = value }, shared, Cmd.none )
+            ( value, shared, Cmd.none )
 
 
 subscriptions : Model -> Shared -> Sub Msg
-subscriptions model session =
+subscriptions _ _ =
     Sub.none
 
 
@@ -52,8 +52,8 @@ subscriptions model session =
 
 
 view : Model -> Shared -> Html Msg
-view model session =
-    div [] [ text model.value ]
+view model _ =
+    div [] [ text model ]
 
 
 

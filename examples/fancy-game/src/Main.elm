@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import Browser
+import Browser exposing (UrlRequest(..))
 import Browser.Navigation as Nav
 import Fancy
 import Layouts.Main exposing (layout)
@@ -36,9 +36,9 @@ type Msg
 init : () -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init _ _ navKey =
     Fancy.initPage
-        { config = Pages.Start.config
+        { config = Pages.Start.page
         , flags = ()
-        , session = Session.init navKey
+        , session = Shared.init navKey
         , msgTagger = StartMsg
         , modelTagger = Start
         }
@@ -53,7 +53,7 @@ router url model =
     case Url.toString url of
         "/" ->
             Fancy.initPage
-                { config = Pages.Start.config
+                { config = Pages.Start.page
                 , flags = ()
                 , session = model.session
                 , msgTagger = StartMsg
@@ -62,7 +62,7 @@ router url model =
 
         "/menu" ->
             Fancy.initPage
-                { config = Pages.Game.config
+                { config = Pages.Game.page
                 , flags = ()
                 , session = model.session
                 , msgTagger = GameMsg
@@ -71,7 +71,7 @@ router url model =
 
         "/game" ->
             Fancy.initPage
-                { config = Pages.GameMenu.config
+                { config = Pages.GameMenu.page
                 , flags = ()
                 , session = model.session
                 , msgTagger = GameMenuMsg
@@ -87,7 +87,12 @@ update msg model =
     case ( msg, model.page ) of
         -- Page: All
         ( OnUrlRequest urlRequest, _ ) ->
-            Fancy.onUrlRequest model.session.navKey model urlRequest
+            case urlRequest of
+                External url ->
+                    ( model, Nav.load url )
+
+                Internal url ->
+                    ( model, Nav.pushUrl model.session.navKey <| Url.toString url )
 
         ( OnUrlChange url, _ ) ->
             router url model
@@ -95,7 +100,7 @@ update msg model =
         -- Page: Start
         ( StartMsg pageMsg, Start pageModel ) ->
             Fancy.updatePage
-                { config = Pages.Start.config
+                { config = Pages.Start.page
                 , msg = pageMsg
                 , page = pageModel
                 , session = model.session
@@ -109,7 +114,7 @@ update msg model =
         -- Page: GameMenu
         ( GameMenuMsg pageMsg, GameMenu pageModel ) ->
             Fancy.updatePage
-                { config = Pages.GameMenu.config
+                { config = Pages.GameMenu.page
                 , msg = pageMsg
                 , page = pageModel
                 , session = model.session
@@ -123,7 +128,7 @@ update msg model =
         -- Page: Game
         ( GameMsg pageMsg, Game pageModel ) ->
             Fancy.updatePage
-                { config = Pages.Game.config
+                { config = Pages.Game.page
                 , msg = pageMsg
                 , page = pageModel
                 , session = model.session
@@ -140,7 +145,7 @@ subscriptions model =
     case model.page of
         Start pageModel ->
             Fancy.subscribePage
-                { config = Pages.Start.config
+                { config = Pages.Start.page
                 , page = pageModel
                 , session = model.session
                 , msgTagger = StartMsg
@@ -148,7 +153,7 @@ subscriptions model =
 
         Game pageModel ->
             Fancy.subscribePage
-                { config = Pages.Game.config
+                { config = Pages.Game.page
                 , page = pageModel
                 , session = model.session
                 , msgTagger = GameMsg
@@ -156,7 +161,7 @@ subscriptions model =
 
         GameMenu pageModel ->
             Fancy.subscribePage
-                { config = Pages.GameMenu.config
+                { config = Pages.GameMenu.page
                 , page = pageModel
                 , session = model.session
                 , msgTagger = GameMenuMsg
